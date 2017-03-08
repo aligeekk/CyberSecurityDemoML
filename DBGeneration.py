@@ -13,7 +13,7 @@ def generate_company(size):
     else:
         security = random.randrange(0, 15)
         botnet = random.randrange(0, 30)
-    attacks = size/100 + random.randrange(0, 10)
+    attacks = random.randrange(0, size)
     company = dict()
     company.update({"size" : size, "security" : security, "botnet" : botnet, "attacks" : attacks})
     return company
