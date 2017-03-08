@@ -50,4 +50,7 @@ def find_best_model():
         print tmp, "\n"
 
 def predict_attack(security, botnet, size, model):
-    print model.predict(Series([security, botnet, size]).reshape(1, -1))
+    return model.predict(Series([security, botnet, size]).reshape(1, -1))[0]
+
+def get_payment(size, attacks, income): #let's say that attacks cost proportionally to a company size
+    return attacks * size * 10 * (1.0 + income)
