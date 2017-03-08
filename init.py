@@ -1,3 +1,4 @@
 import DBGeneration
+import Prediction
 
-DBGeneration.generate_market()
+Prediction.predict_attack(100, 70, 10000, Prediction.get_model())

@@ -1,3 +1,4 @@
+import cPickle
 from pymongo import MongoClient
 from pandas import DataFrame
 from sklearn.ensemble import RandomForestRegressor
@@ -7,16 +8,30 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
+from pandas import Series
 
-client = MongoClient('localhost', 27017)
-db = client['Insurance']
-collection = db['Insurance']
-cursor = collection.find()
-df = DataFrame(list(cursor))
-target = df[['attacks']]
-df = df.drop(['_id'], axis=1)
-features = df.drop(['attacks'], axis=1)
-df.head()
+def fit_model():
+    client = MongoClient('localhost', 27017)
+    db = client['Insurance']
+    collection = db['Insurance']
+    cursor = collection.find()
+    df = DataFrame(list(cursor))
+    target = df[['attacks']]
+    df = df.drop(['_id'], axis=1)
+    features = df.drop(['attacks'], axis=1)
+    df.head()
+    model = SVR(kernel='linear')
+    Xtrn, Xtest, Ytrn, Ytest = train_test_split(features, target, test_size=0.4)
+    model.fit(Xtrn, Ytrn.values.ravel())
+    with open("model", 'wb') as f:
+        cPickle.dump(model, f)
+    return model
+
+def get_model():
+    f = open("model", 'rb')
+    model = cPickle.load(f)
+    f.close()
+    return model
 
 def find_best_model():
     models = [LinearRegression(),
@@ -33,3 +48,6 @@ def find_best_model():
         model.fit(Xtrn, Ytrn.values.ravel())
         tmp['R2_Y%s'%str(1)] = r2_score(Ytest, model.predict(Xtest))
         print tmp, "\n"
+
+def predict_attack(security, botnet, size, model):
+    print model.predict(Series([security, botnet, size]).reshape(1, -1))
